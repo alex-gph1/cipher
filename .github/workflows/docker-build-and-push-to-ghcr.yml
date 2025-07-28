@@ -44,7 +44,7 @@ jobs:
           push: true
           tags: |
             ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ github.sha }} # Good practice to tag with commit SHA
+            ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           cache-from: type=gha # Use GitHub Actions cache for faster builds
           cache-to: type=gha,mode=max # Store build cache
 
