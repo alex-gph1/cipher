@@ -11,7 +11,7 @@ on:
       # Add more specific paths if needed, e.g., 'src/php/**' or 'config/cscart_config.php'
 
 env:
-  IMAGE_NAME: ${{ github.event.repository.name }} # The name of your Docker image
+  IMAGE_NAME: ${{ github.repository }} # The name of your Docker image
   REGISTRY: ghcr.io # Explicitly define GHCR registry URL for clarity and safety
 
 jobs:
@@ -37,14 +37,23 @@ jobs:
           username: ${{ github.actor }} # Uses the GitHub user who triggered the workflow
           password: ${{ secrets.GITHUB_TOKEN }} # Built-in token for GitHub Actions
 
+      - name: Set Docker tag
+        id: tag
+        run: |
+          if [[ "${GITHUB_REF_NAME}" == "main" || "${GITHUB_REF_NAME}" == "master" ]]; then
+            echo "DOCKER_TAG=latest" >> $GITHUB_ENV
+          else
+            echo "DOCKER_TAG=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+          fi
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: . # Build context is the root of the repository
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ github.repository }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${DOCKER_TAG}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           cache-from: type=gha # Use GitHub Actions cache for faster builds
           cache-to: type=gha,mode=max # Store build cache
 
